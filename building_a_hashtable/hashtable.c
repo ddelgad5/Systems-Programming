@@ -71,7 +71,8 @@ void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) { //Iterate throught the
 }
 
 void free_hashtable(hashtable_t *ht) {
-  free(ht); // FIXME: must free all substructures!
+  // free(ht);
+  // FIXME: must free all substructures!
   // We need to iterate through the hashtable
   // ht_iter will allow us to free the nodes in each bucket
 }
@@ -90,17 +91,17 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
 
 void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
   hashtable_t *newTable = make_hashtable(newsize); // create new hashtable (allocate size) and assign it to ht
-  bucket_t *b; // create bucket variable
-  unsigned long i; // create counter
-  for (i=0; i<ht->size; i++) { // iterate through the hashtable
-    b = ht->buckets[i]; // assign the bucket to be
-    while (b) { // while b is not null
-      ht_put(newTable, b->key, b->val); // put the key/value pair into the new hashtable
+
+  //  from ht_iter
+  bucket_t *b; // pointer of bucket_t
+  unsigned long i; // integer declared.  Used for the for loop
+  for (i=0; i<ht->size; i++) { // Go through the hastable
+    b = ht->buckets[i]; // Assign address of the bucket to b
+    while (b) { // While be is not null
+      ht_put(newTable, b->key, b->val);
       b = b->next; // go to next node
     }
   }
-  ht->size = newTable->size;
-  ht->buckets = newTable->buckets;
-  ht = newTable;
-  // TODO: Free newTable
+
+  *ht = *newTable; //Assign newTable address to ht
 }
