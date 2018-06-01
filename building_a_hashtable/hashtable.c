@@ -22,7 +22,6 @@ hashtable_t *make_hashtable(unsigned long size) { //Creating a hashtable
 }
 
 void ht_put(hashtable_t *ht, char *key, void *val) { // Create (or update) a node based on the key
-  /* FIXME: the current implementation doesn't update existing entries */
   //I need to look for the key, if found, I need to update change the value (change value pointer to new value pointer)
   //If the key does not exist, I need to create a new 'node' with the key/value pair
   unsigned int idx = hash(key) % ht->size; //Find what array(bucket) this key will go to
