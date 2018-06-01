@@ -104,4 +104,5 @@ void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
   }
 
   *ht = *newTable; //Assign newTable address to ht
+  // free(newTable);  //  need to free the newtable (this will probably erase ht too)
 }
