@@ -99,6 +99,8 @@ void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
       b = b->next; // go to next node
     }
   }
+  ht->size = newTable->size;
+  ht->buckets = newTable->buckets;
   ht = newTable;
   // TODO: Free newTable
 }
