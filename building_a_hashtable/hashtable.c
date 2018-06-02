@@ -79,14 +79,17 @@ void free_hashtable(hashtable_t *ht) {
 
 /* TODO */
 void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
-  // Hash the key and find index for the bucket
-  // Create an integer of 0 to go through the bucket
-  // While loop that verifies that the next node is not null
-    // If the next node is the target
-      //Assign the current node's next to be the target node's next
-      //Free the memory that was used for the target node
-      //Break from loop
-    // Else Increment integer by 1
+  unsigned int idx = hash(key) % ht->size;  // Hash the key and find index for the bucket
+  bucket_t *b = ht->buckets[idk];  // Create bucket from hashtable
+  while (b) {  // While loop that verifies that the current node is not null
+    bucket_t *nextb = b->next;
+    if (strcmp(nextb->next, key) == 0) {
+      b->next = nextb->next;
+      free(nextb);
+      break;
+    }
+    b = b->next;  // Go to the next node
+  }
 }
 
 void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
