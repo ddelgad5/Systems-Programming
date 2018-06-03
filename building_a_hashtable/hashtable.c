@@ -81,10 +81,29 @@ void free_hashtable(hashtable_t *ht) {
 void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
   unsigned int idx = hash(key) % ht->size;  // Hash the key and find index for the bucket
   bucket_t *b = ht->buckets[idx];
+  bucket_t *target; // For memory freeing purposes
+  if (strcmp( b->key, key) == 0) { // First node is our target
+    target = b;
+    ht->buckets[idx] = NULL; //Assign bucket to null
+  }
   while (b) {
-
+    if (b->next) { // There is a next node
+      if (strcmp(b->next->key, key) == 0) { // The next node is our target
+        target = b->next;
+        if (b->next->next) {  // The target node has a next node
+          b->next = b->next->next; // Correctly assign b->next;
+          break;
+        }
+        b->next = NULL; // Make sure the next node is null
+        break;
+      }
+    }
+    else {
+      break;
+    }
     b = b->next;
   }
+  free(target); // Free our target node
 }
 
 void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
