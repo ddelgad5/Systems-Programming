@@ -56,16 +56,16 @@ void *ht_get(hashtable_t *ht, char *key) { // Retrieve the value for the key (if
   return NULL; //Couldn't find the key, returing NULL
 }
 
-void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) { //Iterate throught the hastable (what is this for?)
-  bucket_t *b; // pointer of bucket_t
-  unsigned long i; // integer declared.  Used for the for loop
-  for (i=0; i<ht->size; i++) { // Go through the hastable
-    b = ht->buckets[i]; // Assign address of the bucket to b
-    while (b) { // While be is not null
-      if (!f(b->key, b->val)) { // Execute function f with the key and value pair
+void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) {
+  bucket_t *b;
+  unsigned long i;
+  for (i=0; i<ht->size; i++) {
+    b = ht->buckets[i];
+    while (b) {
+      if (!f(b->key, b->val)) {
         return ; // abort iteration
       }
-      b = b->next; // go to next node
+      b = b->next;
     }
   }
 }
