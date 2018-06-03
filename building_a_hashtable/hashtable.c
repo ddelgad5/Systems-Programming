@@ -84,13 +84,21 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
   bucket_t *target; // For memory freeing purposes
   if (strcmp( b->key, key) == 0) { // First node is our target
     target = b;
-    ht->buckets[idx] = NULL; //Assign bucket to null
+    if (b->next) { // Is there a next node
+      ht->buckets[idx] = b->next; //Assign new head
+    }
+    else {
+      ht->buckets[idx] = NULL; //Assign bucket to null
+    }
+    free(target);
+    return;
   }
   while (b) {
     if (b->next) { // There is a next node
       if (strcmp(b->next->key, key) == 0) { // The next node is our target
         target = b->next;
         if (b->next->next) {  // The target node has a next node
+          // printf("The target node has a next node\n");
           b->next = b->next->next; // Correctly assign b->next;
           break;
         }
@@ -98,7 +106,8 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
         break;
       }
     }
-    else {
+    else { // The only or last node
+      // printf("Target %s not found\n", key);
       break;
     }
     b = b->next;

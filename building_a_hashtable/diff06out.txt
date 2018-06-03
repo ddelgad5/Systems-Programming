@@ -1,0 +1,65 @@
+gcc -g -Wall   -c -o hashtable.o hashtable.c
+gcc -g -Wall -o hashtable hashtable.o main.o
+10287d10286
+< Target systematic not found
+10289d10287
+< Target Pedetes not found
+10291d10288
+< Target prorestoration not found
+10295d10291
+< Target yellowberry not found
+10297d10292
+< Target knobble not found
+10300d10294
+< Target inscriptioned not found
+10302d10295
+< Target artocarpeous not found
+10304d10296
+< Target trapmaking not found
+10307d10298
+< Target scioptic not found
+10309d10299
+< Target nephridiopore not found
+10311d10300
+< Target rosery not found
+10313d10301
+< Target leucotic not found
+10315d10302
+< Target quitter not found
+10317d10303
+< Target obversely not found
+10319d10304
+< Target snowhouse not found
+10322d10306
+< Target chilopodan not found
+10325d10308
+< Target antitrismus not found
+10328d10310
+< Target Eleaticism not found
+10330d10311
+< Target unmusicianly not found
+10332d10312
+< Target redelegate not found
+10334d10313
+< Target stethospasm not found
+10336d10314
+< Target velocitous not found
+10338d10315
+< Target rhabdocoelan not found
+10341d10317
+< Target buttony not found
+10343d10318
+< Target Fultz not found
+10345d10319
+< Target Ichthyoidea not found
+10348d10321
+< Target neurodynia not found
+10351d10323
+< Target reinsurer not found
+10354d10325
+< Target collusively not found
+10357c10328
+< Num buckets = 9942
+---
+> Num buckets = 9960
+Makefile:49: recipe for target 'diff06' failed
