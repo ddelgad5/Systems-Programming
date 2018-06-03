@@ -80,28 +80,10 @@ void free_hashtable(hashtable_t *ht) {
 /* TODO */
 void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
   unsigned int idx = hash(key) % ht->size;  // Hash the key and find index for the bucket
-  bucket_t *b = ht->buckets[idx];  // Create bucket from hashtable
-  if (strcmp(b->key, key) == 0) { // Is the first node the target?
-    if (b->next) { // The next node exists
-      ht->buckets[idx] = b->next; // Assign the head of the bucket
-    }
-    free(b); // Free the node from memory
-  }
-  else { // The target is not the first node
-    while (b->next) { // Do this if the next node is not null
-      bucket_t *nextb = b->next; // Make a bucket object for the next node
-      if (strcmp(nextb->key, key)) { // Compare the next node's key
-        if (!nextb->next) { // If the next node is null
-          b->next = NULL; // Assign next node to null
-        }
-        else {
-          b->next = nextb->next; // Assign next node to be next node's next
-        }
-        free(nextb); // Free the target node
-        return;
-      }
-      b = b->next;
-    }
+  bucket_t *b = ht->buckets[idx];
+  while (b) {
+
+    b = b->next;
   }
 }
 
