@@ -71,10 +71,37 @@ void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) {
 }
 
 void free_hashtable(hashtable_t *ht) {
-  // free(ht);
-  // FIXME: must free all substructures!
-  // We need to iterate through the hashtable
-  // ht_iter will allow us to free the nodes in each bucket
+  // printf("Freeing hashtable\n");
+  unsigned int i; // To iterate through the hashtable
+  unsigned int nodecount; // To count the total nodes
+  bucket_t *b;
+  for (i=0; i<ht->size; i++) {
+    b = ht->buckets[i];
+    while (b) {
+      nodecount++;
+      b = b->next;
+    }
+  }
+  printf("There are %i total nodes\n", nodecount);
+  bucket_t *todelete[nodecount];
+  nodecount = 0;
+  for (i=0; i<ht->size; i++) {
+    b = ht->buckets[i];
+    while (b) {
+      todelete[nodecount] = b;
+      // printf("Inserting into array\n");
+      nodecount++;
+      b = b->next;
+    }
+  }
+  for (i=0; i<nodecount; i++) {
+    free(todelete[i]);
+    // printf("Address of element %d is %x\n", i, todelete[i]);
+  }
+  for (i=0; i<ht->size; i++) {
+    free(ht->buckets[i]);
+  }
+  free(ht);
 }
 
 /* TODO */
