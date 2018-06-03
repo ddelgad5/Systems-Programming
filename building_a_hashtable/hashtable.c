@@ -73,7 +73,7 @@ void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) {
 void free_hashtable(hashtable_t *ht) {
   // printf("Freeing hashtable\n");
   unsigned int i; // To iterate through the hashtable
-  unsigned int nodecount; // To count the total nodes
+  unsigned int nodecount = 0; // To count the total nodes
   bucket_t *b;
   for (i=0; i<ht->size; i++) {
     b = ht->buckets[i];
@@ -82,7 +82,7 @@ void free_hashtable(hashtable_t *ht) {
       b = b->next;
     }
   }
-  printf("There are %i total nodes\n", nodecount);
+  printf("There are %d total nodes\n", nodecount);
   bucket_t *todelete[nodecount];
   nodecount = 0;
   for (i=0; i<ht->size; i++) {
