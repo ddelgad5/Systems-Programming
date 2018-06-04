@@ -71,34 +71,15 @@ void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) {
 }
 
 void free_hashtable(hashtable_t *ht) {
-  printf("Freeing hashtable\n");
   unsigned int i; // To iterate through the hashtable
-  unsigned int nodecount = 0; // To count the total nodes
   bucket_t *b;
   for (i=0; i<ht->size; i++) {
     b = ht->buckets[i];
     while (b) {
-      nodecount++;
-      b = b->next;
+      ht_del(ht,b->key);
+      b = ht->buckets[i];
     }
   }
-  // printf("There are %d total nodes\n", nodecount);
-  bucket_t *todelete[nodecount];
-  nodecount = 0;
-  for (i=0; i<ht->size; i++) {
-    b = ht->buckets[i];
-    while (b) {
-      todelete[nodecount] = b;
-      // printf("Inserting into array\n");
-      nodecount++;
-      b = b->next;
-    }
-  }
-  for (i=0; i<nodecount; i++) {
-    free(todelete[i]);
-    // printf("Address of element %d is %x\n", i, todelete[i]);
-  }
-  free(ht);
 }
 
 /* TODO */
