@@ -81,6 +81,7 @@ void free_hashtable(hashtable_t *ht) {
     }
     free(ht->buckets[i]);
   }
+  free(ht->buckets);
   free(ht);
 }
 
@@ -119,6 +120,9 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
     }
     b = b->next;
   }
+  free(target->next);
+  free(target->val);
+  free(target->key);
   free(target); // Free our target node
 }
 
