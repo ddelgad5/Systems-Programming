@@ -30,6 +30,8 @@ void ht_put(hashtable_t *ht, char *key, void *val) { // Create (or update) a nod
     b = ht->buckets[idx]; // get bucket address and assign to b
     while(b) {  // while b is not null
       if (strcmp(b->key, key) == 0) { // if the keys match
+        free(b->val); // Free old val
+        free(key); // Free new key
         b->val = val;  // change node value
         break;  // break out of while loop
       }
@@ -43,7 +45,6 @@ void ht_put(hashtable_t *ht, char *key, void *val) { // Create (or update) a nod
     b->next = ht->buckets[idx]; //Assign the next key/value pair to be the existing head of the bucket
     ht->buckets[idx] = b; //Make this new key/value pair the next head of the bucket
   }
-  // free(b);
 }
 
 void *ht_get(hashtable_t *ht, char *key) { // Retrieve the value for the key (if it exists)
