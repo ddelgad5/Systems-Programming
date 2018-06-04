@@ -79,7 +79,9 @@ void free_hashtable(hashtable_t *ht) {
       ht_del(ht,b->key);
       b = ht->buckets[i];
     }
+    free(ht->buckets[i]);
   }
+  free(ht);
 }
 
 /* TODO */
