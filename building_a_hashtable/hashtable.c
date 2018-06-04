@@ -25,8 +25,9 @@ void ht_put(hashtable_t *ht, char *key, void *val) { // Create (or update) a nod
   //I need to look for the key, if found, I need to update change the value (change value pointer to new value pointer)
   //If the key does not exist, I need to create a new 'node' with the key/value pair
   unsigned int idx = hash(key) % ht->size; //Find what array(bucket) this key will go to
+  bucket_t *b;
   if (ht_get(ht, key)) {  // if not null AKA the key already exists
-    bucket_t *b = ht->buckets[idx]; // get bucket address and assign to b
+    b = ht->buckets[idx]; // get bucket address and assign to b
     while(b) {  // while b is not null
       if (strcmp(b->key, key) == 0) { // if the keys match
         b->val = val;  // change node value
@@ -36,12 +37,13 @@ void ht_put(hashtable_t *ht, char *key, void *val) { // Create (or update) a nod
     }
   }
   else {
-    bucket_t *b = malloc(sizeof(bucket_t)); //Allocate memory for the key/value pair
+    b = malloc(sizeof(bucket_t)); //Allocate memory for the key/value pair
     b->key = key; //Insert the key into the allocated memory
     b->val = val; //Insert the value into the allocated memory as well
     b->next = ht->buckets[idx]; //Assign the next key/value pair to be the existing head of the bucket
     ht->buckets[idx] = b; //Make this new key/value pair the next head of the bucket
   }
+  // free(b);
 }
 
 void *ht_get(hashtable_t *ht, char *key) { // Retrieve the value for the key (if it exists)
@@ -98,7 +100,9 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
     else {
       ht->buckets[idx] = NULL; //Assign bucket to null
     }
-    free(target);
+    free(target->val);
+    free(target->key);
+    free(target); // Free our target node
     return;
   }
   while (b) {
