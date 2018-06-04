@@ -132,9 +132,8 @@ void  ht_del(hashtable_t *ht, char *key) { // Remove the key from the hashtable
 
 void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
   hashtable_t *newTable = make_hashtable(newsize); // create new hashtable (allocate size) and assign it to ht
-
-  //  from ht_iter
   bucket_t *b; // pointer of bucket_t
+  bucket_t *bold; // pointer for old buckets
   unsigned long i; // integer declared.  Used for the for loop
   for (i=0; i<ht->size; i++) { // Go through the hastable
     b = ht->buckets[i]; // Assign address of the bucket to b
@@ -143,7 +142,17 @@ void  ht_rehash(hashtable_t *ht, unsigned long newsize) {
       b = b->next; // go to next node
     }
   }
-
-  *ht = *newTable; //Assign newTable object to ht
-  free(newTable);  //  need to free the newtable (this will probably erase ht too)
+  for (i=0; i<ht->size; i++) {  // free old ht nodes
+    bold = ht->buckets[i];
+    while (bold) {
+      b = bold;
+      bold = bold->next;
+      free(b);
+    }
+  }
+  free(ht->buckets);
+  ht->buckets = newTable->buckets;
+  ht->size = newTable->size;
+  ht = newTable;
+  free(newTable);
 }
