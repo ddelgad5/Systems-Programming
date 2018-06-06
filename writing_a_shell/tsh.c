@@ -169,18 +169,19 @@ void eval(char *cmdline)
   char *argv[MAXARGS];
 
   bg = parseline(cmdline, argv);
+  builtin_cmd(argv); // See if it a built-in command
   if (bg) { // Create child process to execute cmd and return cmd prompt
     printf("background job requested\n"); // DEBUG
     //  TODO: Start SIGPROCMASK to allow child jid to be added
-    if ( fork() == 0) { // Create child process
+    //  if ( fork() == 0) { // Create child process
       // TODO: Assign new GID
       // TODO: Finish SIGPROCMASK
-      do_bgfg(argv); // Send command line
-    }
-    else {
+      //  do_bgfg(argv); // Send command line
+    //  }
+    //  else {
       //  TODO: Finish SIGPROCMASK
       return; // Give back command prompt
-    }
+    //  }
   }
   printf("foreground job requested\n"); //  DEBUG
   for (i=0; argv[i] != NULL; i++) {
@@ -252,7 +253,25 @@ int parseline(const char *cmdline, char **argv)
  */
 int builtin_cmd(char **argv)
 {
-  return 0;     /* not a builtin command */
+  printf("Is %s an built-in command?\n", argv[0]); // DEBUG
+  if (strcmp(argv[0], "quit") == 0) {  // quit program
+    printf("Quitting program\n"); // DEBUG
+    exit(0);
+  }
+  else if (strcmp(argv[0], "jobs") == 0) { //  print jobs
+    printf("Printing jobs\n"); // DEBUG
+  }
+  else if (strcmp(argv[0], "bg") == 0) { //  send to background
+    printf("Sending JID %s to background\n", argv[1]); // DEBUG
+  }
+  else if (strcmp(argv[0], "fg") == 0) { // send to foreground
+    printf("Sending JID %s to foreground\n", argv[1]); // DEBUG
+  }
+  else {
+    printf("Not a builtin command"); // DEBUG
+    return 0;     /* not a builtin command */
+  }
+  return 0; //  never reaches here
 }
 
 /*
