@@ -166,27 +166,31 @@ void eval(char *cmdline)
   /* the following code demonstrates how to use parseline --- you'll
    * want to replace most of it (at least the print statements). */
   int i, bg;
+  int state = 1;
+  sigset_t blockMask;
+  pid_t newPid;
   char *argv[MAXARGS];
   initjobs(jobs); // Initialize job array
-  pid_t newPid;
   bg = parseline(cmdline, argv);
+  sigemptyset(&blockMask);
+  sigaddset(&blockMask, SIGCHLD);
   builtin_cmd(argv); // See if it a built-in command
-  if (bg) { // Create child process to execute cmd and return cmd prompt
-    printf("background job requested\n"); // DEBUG
-    //  TODO: Start SIGPROCMASK to allow child jid to be added
-    //  if ( fork() == 0) { // Create child process
-      // TODO: Assign new GID
-      // TODO: Finish SIGPROCMASK
-      //  do_bgfg(argv); // Send command line
-    //  }
-    //  else {
-      //  TODO: Finish SIGPROCMASK
-      return; // Give back command prompt
-    //  }
+  if (bg) state = 2;
+  sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
+
+  if ((newPid = fork()) == 0) { // in the child process
+    printf("Inside child\n");
+    sigprocmask(SIG_UNBLOCK, &blockMask, NULL);// set Sigprocmask
+    setpgid(0,0);
+    do_bgfg(argv);
   }
-  printf("foreground job requested\n"); //  DEBUG
-  for (i=0; argv[i] != NULL; i++) {
-    printf("argv[%d]=%s%s", i, argv[i], (argv[i+1]==NULL)?"\n":", ");
+  else {
+    printf("Inside parent\n");
+    sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
+    addjob(jobs, newPid, state, cmdline);
+    if(!bg) {
+      waitfg(newPid);
+    }
   }
   return;
 }
