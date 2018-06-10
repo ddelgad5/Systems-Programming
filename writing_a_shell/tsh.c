@@ -255,7 +255,6 @@ int builtin_cmd(char **argv)
 {
   printf("Is %s an built-in command?\n", argv[0]); // DEBUG
   if (strcmp(argv[0], "quit") == 0) {  // quit program
-    printf("Quitting program\n"); // DEBUG
     exit(0);
   }
   else if (strcmp(argv[0], "jobs") == 0) { //  print jobs
