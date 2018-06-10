@@ -167,7 +167,8 @@ void eval(char *cmdline)
    * want to replace most of it (at least the print statements). */
   int i, bg;
   char *argv[MAXARGS];
-
+  initjobs(jobs); // Initialize job array
+  pid_t newPid;
   bg = parseline(cmdline, argv);
   builtin_cmd(argv); // See if it a built-in command
   if (bg) { // Create child process to execute cmd and return cmd prompt
