@@ -284,6 +284,7 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv)
 {
+  printf("Executing command\n");
   return;
 }
 
@@ -308,6 +309,7 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
+  printf("Child process has stopped\n");
   return;
 }
 
@@ -318,6 +320,7 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig)
 {
+  printf("Ctrl-C signaled\n");
   return;
 }
 
@@ -328,6 +331,8 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig)
 {
+  printf("Ctrl-Z signaled");
+  printf("Foreground process is %d\n", fgpid(jobs));
   return;
 }
 
