@@ -163,21 +163,33 @@ int main(int argc, char **argv)
  */
 void eval(char *cmdline)
 {
+  sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGCHLD);
   pid_t pid;
-  int state;
+  int state = 1;
   char *argv[MAXARGS];
   int bg = parseline(cmdline, argv);
   if (!builtin_cmd(argv)) {
+    sigprocmask(SIG_BLOCK, &mask, NULL);
     if ((pid=fork()) == 0) {
       printf("Inside child\nMy pid is %i\n", getpid());
+      sigprocmask(SIG_UNBLOCK, &mask, NULL);
       do_bgfg(argv);
     }
     else {
       printf("Inside parent\n");
       printf("Child process pid is %i\n", pid);
+      if (bg) state = 2;
+      addjob(jobs, pid, state, cmdline);
+      sigprocmask(SIG_UNBLOCK, &mask, NULL);
       if (!bg) {
-        wait(NULL);
+        // wait(NULL);
         // waitfg(pid);
+        while(fgpid(jobs)) {
+          printf("Waiting for child\n");
+          sleep(1);
+        }
       }
     }
   }
