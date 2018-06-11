@@ -329,7 +329,7 @@ void sigint_handler(int sig)
   // printf("Current pid is %i\n", pid);
   pid_t pid = fgpid(jobs);
   int jid = pid2jid(pid);
-  if (pid) kill(-pid, 2);
+  if (pid) kill(-pid, sig);
   printf("Job [%i] (%i) terminated by signal %i\n", jid, pid, sig);
 }
 
@@ -342,7 +342,13 @@ void sigtstp_handler(int sig)
 {
   printf("Ctrl-Z signaled\n");
   printf("Foreground process is %d\n", fgpid(jobs));
-  return;
+  pid_t pid = fgpid(jobs);
+  int jid = pid2jid(pid);
+  kill(-pid, sig);
+  printf("Job [%i] (%i) stopped by signal %i\n", jid, pid, sig);
+  listjobs(jobs);
+  // TODO Modify job status
+  // DEBUG Doesn't want to return the prompt
 }
 
 /*********************
