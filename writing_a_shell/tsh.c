@@ -174,8 +174,8 @@ void eval(char *cmdline)
     sigprocmask(SIG_BLOCK, &mask, NULL);
     if ((pid=fork()) == 0) {
       // printf("Inside child\nMy pid is %i\n", getpid());
-      sigprocmask(SIG_UNBLOCK, &mask, NULL);
       setpgid(0, 0);
+      sigprocmask(SIG_UNBLOCK, &mask, NULL);
       do_bgfg(argv);
     }
     else {
@@ -186,6 +186,9 @@ void eval(char *cmdline)
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
       if (!bg) {
         waitfg(pid);
+      }
+      else {
+        printf("[%i] (%i) %s", pid2jid(pid), pid, cmdline);
       }
     }
   }
@@ -259,7 +262,6 @@ int builtin_cmd(char **argv)
     exit(0);
   }
   else if (strcmp(argv[0], "jobs") == 0) { //  print jobs
-    printf("Printing jobs\n"); // DEBUG
     listjobs(jobs);
     return 1;
   }
@@ -280,9 +282,9 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv)
 {
-  printf("Executing command\n");
+  // printf("Executing command\n");
   if(execv(argv[0], argv) < 0) {
-    printf("Command not found\n");
+    printf("%s: command not found\n", argv[0]);
     exit(0);
   }
 }
@@ -310,11 +312,9 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
-  pid_t pid = fgpid(jobs);
-  // printf("Child process has stopped\n");
-  waitpid(pid, NULL, 0);
+  pid_t pid;
+  pid  = waitpid(-1, NULL, 0);
   // printf("Process %i exited\n", pid);
-  // TODO: Need to remove job from list
   deletejob(jobs, pid);
 }
 
@@ -326,9 +326,10 @@ void sigchld_handler(int sig)
 void sigint_handler(int sig)
 {
   pid_t pid = fgpid(jobs);
-  printf("Ctrl-C signaled\n");
-  printf("Current pid is %i\n", pid);
-  kill(pid, 2);
+  // printf("Ctrl-C signaled\n");
+  // printf("Current pid is %i\n", pid);
+  if (pid) kill(-pid, 2);
+  return;
 }
 
 /*
