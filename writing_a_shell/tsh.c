@@ -286,13 +286,11 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv)
 {
-  int i=0;
   printf("Executing command\n");
-  // while(argv[i]) {
-  //   printf("%s\n", argv[i]);
-  //   i++;
-  // }
-  execl(argv[0],*argv, NULL);
+  if(execv(argv[0], argv) < 0) {
+    printf("Command not found\n");
+    exit(0);
+  }
 }
 
 /*
