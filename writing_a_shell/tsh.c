@@ -313,8 +313,12 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
+  pid_t pid = fgpid(jobs);
   printf("Child process has stopped\n");
-  return;
+  waitpid(pid, NULL, 0);
+  printf("Process %i exited\n", pid);
+  // TODO: Need to remove job from list
+  deletejob(jobs, pid);
 }
 
 /*
