@@ -184,12 +184,7 @@ void eval(char *cmdline)
       addjob(jobs, pid, state, cmdline);
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
       if (!bg) {
-        // wait(NULL);
-        // waitfg(pid);
-        while(fgpid(jobs)) {
-          printf("Waiting for child\n");
-          sleep(1);
-        }
+        waitfg(pid);
       }
     }
   }
@@ -299,11 +294,10 @@ void do_bgfg(char **argv)
 void waitfg(pid_t pid)
 {
   printf("Inside waitfg\n");
-  while(getjobpid(jobs, pid)) {
-    printf("Waiting\n");
+  while(fgpid(jobs)) {
+    printf("Waiting for child\n");
     sleep(1);
   }
-  return;
 }
 
 /*****************
