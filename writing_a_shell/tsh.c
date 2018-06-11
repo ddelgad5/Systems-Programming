@@ -325,11 +325,12 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig)
 {
-  pid_t pid = fgpid(jobs);
   // printf("Ctrl-C signaled\n");
   // printf("Current pid is %i\n", pid);
+  pid_t pid = fgpid(jobs);
+  int jid = pid2jid(pid);
   if (pid) kill(-pid, 2);
-  return;
+  printf("Job [%i] (%i) terminated by signal %i\n", jid, pid, sig);
 }
 
 /*
