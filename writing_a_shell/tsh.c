@@ -163,38 +163,7 @@ int main(int argc, char **argv)
  */
 void eval(char *cmdline)
 {
-  /* the following code demonstrates how to use parseline --- you'll
-   * want to replace most of it (at least the print statements). */
-  int i, bg;
-  int state = 1;
-  sigset_t blockMask;
-  pid_t newPid;
-  char *argv[MAXARGS];
-  initjobs(jobs); // Initialize job array
-  bg = parseline(cmdline, argv);
-  sigemptyset(&blockMask);
-  sigaddset(&blockMask, SIGCHLD);
-  builtin_cmd(argv); // See if it a built-in command
-  if (bg) state = 2;
-  sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
-  newPid = fork();
-  if (newPid == 0) { // in the child process
-    sigprocmask(SIG_UNBLOCK, &blockMask, NULL);// set Sigprocmask
-    printf("Inside child\n");
-    setpgid(0,0);
-    do_bgfg(argv);
-  }
-  else {
-    sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
-    printf("Inside parent\n");
-    printf("Child pid is %s\n", newPid);
-    addjob(jobs, newPid, state, cmdline);
-    if(!bg) {
-      printf("Not a background job.  Going to wait\n");
-      waitfg(newPid);
-    }
-  }
-  return;
+  
 }
 
 /*
