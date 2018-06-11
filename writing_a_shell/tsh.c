@@ -163,7 +163,25 @@ int main(int argc, char **argv)
  */
 void eval(char *cmdline)
 {
-  
+  pid_t pid;
+  int state;
+  char *argv[MAXARGS];
+  int bg = parseline(cmdline, argv);
+  if (!builtin_cmd(argv)) {
+    if ((pid=fork()) == 0) {
+      printf("Inside child\nMy pid is %i\n", getpid());
+      do_bgfg(argv);
+    }
+    else {
+      printf("Inside parent\n");
+      printf("Child process pid is %i\n", pid);
+      if (!bg) {
+        wait(NULL);
+        // waitfg(pid);
+      }
+    }
+  }
+  return;
 }
 
 /*
