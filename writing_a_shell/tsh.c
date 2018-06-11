@@ -266,6 +266,7 @@ int builtin_cmd(char **argv)
   else if (strcmp(argv[0], "jobs") == 0) { //  print jobs
     printf("Printing jobs\n"); // DEBUG
     listjobs(jobs);
+    return 1;
   }
   else if (strcmp(argv[0], "bg") == 0) { //  send to background
     printf("Sending JID %s to background\n", argv[1]); // DEBUG
