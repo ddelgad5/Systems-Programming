@@ -177,18 +177,20 @@ void eval(char *cmdline)
   builtin_cmd(argv); // See if it a built-in command
   if (bg) state = 2;
   sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
-
-  if ((newPid = fork()) == 0) { // in the child process
-    printf("Inside child\n");
+  newPid = fork();
+  if (newPid == 0) { // in the child process
     sigprocmask(SIG_UNBLOCK, &blockMask, NULL);// set Sigprocmask
+    printf("Inside child\n");
     setpgid(0,0);
     do_bgfg(argv);
   }
   else {
-    printf("Inside parent\n");
     sigprocmask(SIG_BLOCK, &blockMask, NULL);// set Sigprocmask
+    printf("Inside parent\n");
+    printf("Child pid is %s\n", newPid);
     addjob(jobs, newPid, state, cmdline);
     if(!bg) {
+      printf("Not a background job.  Going to wait\n");
       waitfg(newPid);
     }
   }
@@ -273,7 +275,7 @@ int builtin_cmd(char **argv)
     printf("Sending JID %s to foreground\n", argv[1]); // DEBUG
   }
   else {
-    printf("Not a builtin command"); // DEBUG
+    printf("Not a builtin command\n"); // DEBUG
     return 0;     /* not a builtin command */
   }
   return 0; //  never reaches here
@@ -284,8 +286,13 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv)
 {
+  int i=0;
   printf("Executing command\n");
-  return;
+  // while(argv[i]) {
+  //   printf("%s\n", argv[i]);
+  //   i++;
+  // }
+  execl(argv[0],*argv, NULL);
 }
 
 /*
@@ -293,6 +300,11 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
+  printf("Inside waitfg\n");
+  while(getjobpid(jobs, pid)) {
+    printf("Waiting\n");
+    sleep(1);
+  }
   return;
 }
 
@@ -331,7 +343,7 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig)
 {
-  printf("Ctrl-Z signaled");
+  printf("Ctrl-Z signaled\n");
   printf("Foreground process is %d\n", fgpid(jobs));
   return;
 }
