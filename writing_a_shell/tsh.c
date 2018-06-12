@@ -258,6 +258,7 @@ int parseline(const char *cmdline, char **argv)
  */
 int builtin_cmd(char **argv)
 {
+  struct job_t *job;
   if (strcmp(argv[0], "quit") == 0) {  // quit program
     exit(0);
   }
@@ -266,10 +267,22 @@ int builtin_cmd(char **argv)
     return 1;
   }
   else if (strcmp(argv[0], "bg") == 0) { //  send to background
-    printf("Sending JID %s to background\n", argv[1]); // DEBUG
+    // printf("Sending JID %i to background\n", atoi(&argv[1][1])); // DEBUG
+    job = getjobjid(jobs, atoi(&argv[1][1]));
+    printf("%s", job->cmdline);
+    job->state = 2;
+    kill(job->pid,18);
+    printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+    return 1;
   }
   else if (strcmp(argv[0], "fg") == 0) { // send to foreground
-    printf("Sending JID %s to foreground\n", argv[1]); // DEBUG
+    // printf("Sending JID %s to foreground\n", argv[1]); // DEBUG
+    job = getjobjid(jobs, atoi(&argv[1][1]));
+    printf("%s", job->cmdline);
+    job->state = 1;
+    kill(job->pid,18);
+    waitfg(job->pid);
+    return 1;
   }
   else {
     return 0;     /* not a builtin command */
