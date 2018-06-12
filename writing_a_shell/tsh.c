@@ -307,6 +307,9 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
+  // struct job_t *job = getjobpid(jobs, pid);
+  // if (job->state == ST) return;
+  // printf("Inside waitfg\n");
   while(fgpid(jobs)) {
     sleep(1);
   }
@@ -325,10 +328,12 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
+  // printf("Inside sigchld_handler\n");
   pid_t pid;
-  pid  = waitpid(-1, NULL, 0);
+  if ((pid = waitpid(-1, NULL, WNOHANG))) {
+    deletejob(jobs, pid);
+  }
   // printf("Process %i exited\n", pid);
-  deletejob(jobs, pid);
 }
 
 /*
@@ -353,15 +358,12 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig)
 {
-  printf("Ctrl-Z signaled\n");
-  printf("Foreground process is %d\n", fgpid(jobs));
   pid_t pid = fgpid(jobs);
+  struct job_t *job = getjobpid(jobs, pid);
   int jid = pid2jid(pid);
   kill(-pid, sig);
   printf("Job [%i] (%i) stopped by signal %i\n", jid, pid, sig);
-  listjobs(jobs);
-  // TODO Modify job status
-  // DEBUG Doesn't want to return the prompt
+  job->state = 3; // ST 3
 }
 
 /*********************
