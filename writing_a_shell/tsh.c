@@ -351,6 +351,7 @@ void waitfg(pid_t pid)
   // if (job->state == ST) return;
   // printf("Inside waitfg\n");
   while(fgpid(jobs)) {
+    // printf("waiting");
     sleep(1);
   }
 }
@@ -398,7 +399,9 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig)
 {
-  pid_t pid = fgpid(jobs);
+  printf("Inside sigtstp\n");
+  // pid_t pid = fgpid(jobs);
+  pid_t pid = getpid();
   struct job_t *job = getjobpid(jobs, pid);
   int jid = pid2jid(pid);
   kill(-pid, sig);
