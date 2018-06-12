@@ -400,8 +400,8 @@ void sigint_handler(int sig)
 void sigtstp_handler(int sig)
 {
   printf("Inside sigtstp\n");
-  // pid_t pid = fgpid(jobs);
-  pid_t pid = getpid();
+  pid_t pid = fgpid(jobs);
+  //pid_t pid = getpid();
   struct job_t *job = getjobpid(jobs, pid);
   int jid = pid2jid(pid);
   kill(-pid, sig);
