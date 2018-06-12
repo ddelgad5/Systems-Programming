@@ -267,21 +267,61 @@ int builtin_cmd(char **argv)
     return 1;
   }
   else if (strcmp(argv[0], "bg") == 0) { //  send to background
-    // printf("Sending JID %i to background\n", atoi(&argv[1][1])); // DEBUG
-    job = getjobjid(jobs, atoi(&argv[1][1]));
-    printf("%s", job->cmdline);
-    job->state = 2;
-    kill(job->pid,18);
-    printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+    if (!argv[1]) {
+      printf("bg command requires PID or %%jobid arguement\n");
+    }
+    else if (argv[1][0] == '%') {
+      // printf("Processing job\n");
+      job = getjobjid(jobs, atoi(&argv[1][1]));
+      if (job) {
+        job->state = 2;
+        kill(-(job->pid),18);
+        printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+      }
+      else printf("%s: No such job\n", argv[1]);
+    }
+    else if (isdigit(argv[1][0])) {
+      job = getjobpid(jobs, atoi(&argv[1][0]));
+      if (job) {
+        job->state = 2;
+        kill(-(job->pid),18);
+        printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+      }
+      else printf("(%s): No such process\n", argv[1]);
+    }
+    else {
+      printf("bg: arguement must be a PID or %%jobid arguement\n");
+    }
     return 1;
   }
   else if (strcmp(argv[0], "fg") == 0) { // send to foreground
-    // printf("Sending JID %s to foreground\n", argv[1]); // DEBUG
-    job = getjobjid(jobs, atoi(&argv[1][1]));
-    printf("%s", job->cmdline);
-    job->state = 1;
-    kill(job->pid,18);
-    waitfg(job->pid);
+    if (!argv[1]) {
+      printf("fg command requires PID or %%jobid arguement\n");
+    }
+    else if (argv[1][0] == '%') {
+      // printf("Processing job\n");
+      job = getjobjid(jobs, atoi(&argv[1][1]));
+      if (job) {
+        job->state = 1;
+        kill(-(job->pid),18);
+        // printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+        waitfg(job->pid);
+      }
+      else printf("%s: No such job\n", argv[1]);
+    }
+    else if (isdigit(argv[1][0])) {
+      job = getjobpid(jobs, atoi(&argv[1][0]));
+      if (job) {
+        job->state = 1;
+        kill(-(job->pid),18);
+        // printf("[%i] (%i) %s", job->jid, job->pid, job->cmdline);
+        waitfg(job->pid);
+      }
+      else printf("(%s): No such process\n", argv[1]);
+    }
+    else {
+      printf("fg: arguement must be a PID or %%jobid arguement\n");
+    }
     return 1;
   }
   else {
@@ -297,7 +337,7 @@ void do_bgfg(char **argv)
 {
   // printf("Executing command\n");
   if(execv(argv[0], argv) < 0) {
-    printf("%s: command not found\n", argv[0]);
+    printf("%s: Command not found\n", argv[0]);
     exit(0);
   }
 }
@@ -458,7 +498,6 @@ pid_t fgpid(struct job_t *jobs) {
 /* getjobpid  - Find a job (by PID) on the job list */
 struct job_t *getjobpid(struct job_t *jobs, pid_t pid) {
   int i;
-
   if (pid < 1)
     return NULL;
   for (i = 0; i < MAXJOBS; i++)
