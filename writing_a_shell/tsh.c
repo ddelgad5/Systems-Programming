@@ -351,8 +351,9 @@ void waitfg(pid_t pid)
   // if (job->state == ST) return;
   // printf("Inside waitfg\n");
   while(fgpid(jobs)) {
-    // printf("waiting");
+    // printf("waiting\n");
     sleep(1);
+    // listjobs(jobs);
   }
 }
 
@@ -369,12 +370,26 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
-  // printf("Inside sigchld_handler\n");
+//   printf("Inside sigchld_handler\n");
   pid_t pid;
-  if ((pid = waitpid(-1, NULL, WNOHANG))) {
-    deletejob(jobs, pid);
+  int status;
+  if ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED))) {
+    // printf("Child process state changed with status %i\n", status);
+    if (WIFEXITED(status)) {
+        // printf("The child exited\n");
+        deletejob(jobs, pid);
+    }
+    else if (WIFSIGNALED(status)) {
+        // printf("The child was signaled");
+        sigint_handler(WTERMSIG(status));
+    }
+    else if (WIFSTOPPED(status)) {
+        // printf("The child was stopped\n");
+        sigtstp_handler(WSTOPSIG(status));
+    }
+    else sigint_handler(status);
   }
-  // printf("Process %i exited\n", pid);
+  else printf("Did not do anything\n");
 }
 
 /*
@@ -384,11 +399,17 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig)
 {
-  // printf("Ctrl-C signaled\n");
+//   printf("Ctrl-C signaled\n");
   // printf("Current pid is %i\n", pid);
   pid_t pid = fgpid(jobs);
+//   printf("PID is %i", pid);
   int jid = pid2jid(pid);
-  if (pid) kill(-pid, sig);
+  if (pid) {
+    kill(-pid, sig);
+    if (!deletejob(jobs, pid)) {
+      printf("Error: Could not find job to delete\n");   
+    }
+  }  
   printf("Job [%i] (%i) terminated by signal %i\n", jid, pid, sig);
 }
 
