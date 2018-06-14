@@ -166,6 +166,7 @@ void eval(char *cmdline)
   sigset_t mask;
   sigemptyset(&mask);
   sigaddset(&mask, SIGCHLD);
+  sigaddset(&mask, SIGINT);
   pid_t pid;
   int state = 1;
   char *argv[MAXARGS];
@@ -174,8 +175,8 @@ void eval(char *cmdline)
     sigprocmask(SIG_BLOCK, &mask, NULL);
     if ((pid=fork()) == 0) {
       // printf("Inside child\nMy pid is %i\n", getpid());
-      setpgid(0, 0);
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
+      setpgid(0, 0);
       do_bgfg(argv);
     }
     else {
@@ -374,24 +375,25 @@ void sigchld_handler(int sig)
   struct job_t *job;
   int status;
   if ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED))) {
-    job = getjobpid(jobs, pid);
-    printf("[%i] (%i): state has changed\n", job->jid, job->pid);
-    if (WIFEXITED(status)) {
-      printf("[%i] (%i): exited normally with exit status %i\n", job->jid, job->pid, WEXITSTATUS(status));
-      deletejob(jobs, pid);
-      return;
+    if ((job = getjobpid(jobs, pid))) {
+      // printf("[%i] (%i): state has changed\n", job->jid, job->pid);
+      if (WIFEXITED(status)) {
+        // printf("[%i] (%i): exited normally with exit status %i\n", job->jid, job->pid, WEXITSTATUS(status));
+        deletejob(jobs, pid);
+        return;
+      }
+      else if (WIFSIGNALED(status)) {
+        // printf("[%i] (%i): terminated with signal %i\n", job->jid, job->pid, WTERMSIG(status));
+        sigint_handler(WTERMSIG(status));
+        return;
+      }
+      else if (WIFSTOPPED(status)) {
+        // printf("[%i] (%i): stopped by signal %i\n", job->jid, job->pid, WSTOPSIG(status));
+        sigtstp_handler(WSTOPSIG(status));
+        return;
+      }
+      else deletejob(jobs, pid);
     }
-    else if (WIFSIGNALED(status)) {
-      printf("[%i] (%i): terminated with signal %i\n", job->jid, job->pid, WTERMSIG(status));
-      deletejob(jobs, pid);
-      return;
-    }
-    else if (WIFSTOPPED(status)) {
-      printf("[%i] (%i): stopped by signal %i\n", job->jid, job->pid, WSTOPSIG(status));
-      sigtstp_handler(WSTOPSIG(status));
-      return;
-    }
-    // deletejob(jobs, pid);
   }
   // printf("Process %i exited\n", pid);
 }
@@ -406,9 +408,15 @@ void sigint_handler(int sig)
   // printf("Ctrl-C signaled\n");
   // printf("Current pid is %i\n", pid);
   pid_t pid = fgpid(jobs);
-  int jid = pid2jid(pid);
-  if (pid) kill(-pid, sig);
-  printf("Job [%i] (%i) terminated by signal %i\n", jid, pid, sig);
+  struct job_t *job = getjobpid(jobs, pid);
+  // printf("[%i] (%i) %s: Ctrl-C signaled\n", job->jid, job->pid, job->cmdline);
+  if (pid) {
+    int jid = pid2jid(pid);
+    kill(pid, sig);
+    deletejob(jobs, pid);
+    printf("Job [%i] (%i) terminated by signal %i\n", jid, pid, sig);
+  }
+  return;
 }
 
 /*
@@ -418,13 +426,13 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig)
 {
-  printf("Inside sigtstp\n");
+  // printf("Inside sigtstp\n");
   pid_t pid = fgpid(jobs);
   //pid_t pid = getpid();
   if (pid) {
     struct job_t *job = getjobpid(jobs, pid);
     int jid = pid2jid(pid);
-    kill(-pid, sig);
+    kill(pid, sig);
     printf("Job [%i] (%i) stopped by signal %i\n", jid, pid, sig);
     job->state = 3; // ST 3
   }
