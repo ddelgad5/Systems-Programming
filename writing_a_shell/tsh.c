@@ -421,11 +421,13 @@ void sigtstp_handler(int sig)
   printf("Inside sigtstp\n");
   pid_t pid = fgpid(jobs);
   //pid_t pid = getpid();
-  struct job_t *job = getjobpid(jobs, pid);
-  int jid = pid2jid(pid);
-  kill(-pid, sig);
-  printf("Job [%i] (%i) stopped by signal %i\n", jid, pid, sig);
-  job->state = 3; // ST 3
+  if (pid) {
+    struct job_t *job = getjobpid(jobs, pid);
+    int jid = pid2jid(pid);
+    kill(-pid, sig);
+    printf("Job [%i] (%i) stopped by signal %i\n", jid, pid, sig);
+    job->state = 3; // ST 3
+  }
 }
 
 /*********************
