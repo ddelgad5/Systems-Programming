@@ -369,9 +369,22 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig)
 {
-  // printf("Inside sigchld_handler\n");
+  printf("SIGCHLD signal received\n");
   pid_t pid;
-  if ((pid = waitpid(-1, NULL, WNOHANG))) {
+  struct job_t *job;
+  int status;
+  if ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED))) {
+    job = getjobpid(jobs, pid);
+    printf("[%i] (%i): state has changed\n", job->jid, job->pid);
+    if (WIFEXITED(status)) {
+      printf("[%i] (%i): exited normally with exit status %i\n", job->jid, job->pid, WEXITSTATUS(status));
+    }
+    else if (WIFSIGNALED(status)) {
+      printf("[%i] (%i): terminated with signal %i\n", job->jid, job->pid, WTERMSIG(status));
+    }
+    else if (WIFSTOPPED(status)) {
+      printf("[%i] (%i): stopped by signal %i\n", job->jid, job->pid, WSTOPSIG(status));
+    }
     deletejob(jobs, pid);
   }
   // printf("Process %i exited\n", pid);
