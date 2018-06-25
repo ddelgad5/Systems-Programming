@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-void printHelp();
-bool isNumber(char []);
+void printHelp(); // to print out arguements and what they do
+bool isNumber(char []); // test arguements
 
 int main(int argc, char **argv)
 {
@@ -15,6 +15,8 @@ int main(int argc, char **argv)
   int misses = 0;
   int evictions = 0;
   bool verbose = false;
+  FILE *fp; // for trace file
+  char buff[255];
   // printf("Executing program\n");
   if (argc < 0) { // check if there are any arguements
     printf("ERROR\n");
@@ -71,6 +73,12 @@ int main(int argc, char **argv)
       }
       else if (strcmp(argv[i], "-t") == 0) { // Asking for tracefile
         printf("Asking for tracefile\n");
+        // printf("%s\n", argv[i+1]);
+        fp = fopen(argv[i+1], "r");
+        while (fgets(buff, 255, (FILE *)fp)) {
+          printf("%s\n", buff);
+        }
+        i++;
       }
       else {  //  catch invalid arguements
         // printf("ERROR: Invalid arguements\n");
