@@ -77,6 +77,8 @@ int main(int argc, char **argv)
         fp = fopen(argv[i+1], "r");
         while (fgets(buff, 255, (FILE *)fp)) {
           printf("%s\n", buff);
+          // parse the line to get the command, memory, and size
+          // send info to a evalFunction
         }
         i++;
       }
