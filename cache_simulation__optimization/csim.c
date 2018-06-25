@@ -11,6 +11,9 @@ bool isNumber(char []);
 int main(int argc, char **argv)
 {
   int indexBits, associativity, blockBits;
+  int hits = 0;
+  int misses = 0;
+  int evictions = 0;
   bool verbose = false;
   // printf("Executing program\n");
   if (argc < 0) { // check if there are any arguements
@@ -31,27 +34,39 @@ int main(int argc, char **argv)
         exit(0);
       }
       else if (strcmp(argv[i], "-s") == 0) { // Asking for number of index bits
-        printf("Setting number of index bits\n");
+        // printf("Setting number of index bits\n");
         if (isNumber(argv[i+1])) {
-          indexBits = *argv[i+1];
+          indexBits = atoi(argv[i+1]);
           printf("Index bits: %i\n", indexBits);
           i++;
         }
+        else {
+          printf("ERROR: No number is set\n");
+          exit(-1);
+        }
       }
       else if (strcmp(argv[i], "-E") == 0) { // Asking for associativity
-        printf("Setting associativity\n");
+        // printf("Setting associativity\n");
         if (isNumber(argv[i+1])) {
-          associativity = *argv[i+1];
+          associativity = atoi(argv[i+1]);
           printf("Associativity: %i\n", associativity);
           i++;
         }
+        else {
+          printf("ERROR: No number is set\n");
+          exit(-1);
+        }
       }
       else if (strcmp(argv[i], "-b") == 0) { // Asking for number of block bits
-        printf("Setting number of block bits\n");
+        // printf("Setting number of block bits\n");
         if (isNumber(argv[i+1])) {
-          blockBits = *argv[i+1];
+          blockBits = atoi(argv[i+1]);
           printf("Block bits: %i\n", blockBits);
           i++;
+        }
+        else {
+          printf("ERROR: No number is set\n");
+          exit(-1);
         }
       }
       else if (strcmp(argv[i], "-t") == 0) { // Asking for tracefile
@@ -64,7 +79,7 @@ int main(int argc, char **argv)
       }
     }
   }
-  printSummary(0, 0, 0);
+  printSummary(hits, misses, evictions);
   return 0;
 }
 
@@ -83,6 +98,8 @@ bool isNumber(char number[]) {
   int n=0;
   if (number[0] == '-') { // check for negative
     n = 1; // start number on second element
+    printf("ERROR: Number cannot be negative\n");
+    exit(-1);
   }
   for (; number[n] != 0; n++) {
     if (!isdigit(number[n])) return false;
