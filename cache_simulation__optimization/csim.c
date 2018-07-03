@@ -7,15 +7,18 @@
 
 void printHelp(); // to print out arguements and what they do
 bool isNumber(char []); // test arguements
+// unsigned int hex2int(char []); // converts hexadecimal to integer
+// unsigned int bin2int(char []); // converts binary to integer
+
 
 int main(int argc, char **argv)
 {
   int indexBits, associativity, blockBits;
+  FILE * traceFile;
   int hits = 0;
   int misses = 0;
   int evictions = 0;
   bool verbose = false;
-  FILE *fp; // for trace file
   char buff[255];
   // printf("Executing program\n");
   if (argc < 0) { // check if there are any arguements
@@ -72,14 +75,10 @@ int main(int argc, char **argv)
         }
       }
       else if (strcmp(argv[i], "-t") == 0) { // Asking for tracefile
-        printf("Asking for tracefile\n");
+        // printf("Asking for tracefile\n");
+        printf("Trace file: %s\n", argv[i+1]);
         // printf("%s\n", argv[i+1]);
-        fp = fopen(argv[i+1], "r");
-        while (fgets(buff, 255, (FILE *)fp)) {
-          printf("%s\n", buff);
-          // parse the line to get the command, memory, and size
-          // send info to a evalFunction
-        }
+        traceFile = fopen(argv[i+1], "r");
         i++;
       }
       else {  //  catch invalid arguements
@@ -87,6 +86,14 @@ int main(int argc, char **argv)
         printHelp();
         exit(0);
       }
+    }
+    printf("All commands read\n");
+    // create cache structure
+    printf("Reading trace file\n");
+    while (fgets(buff, 255, traceFile)) {
+      printf("%s", buff);
+      // parse the line to get the command, memory, and size
+      // send info to a evalFunction
     }
   }
   printSummary(hits, misses, evictions);
